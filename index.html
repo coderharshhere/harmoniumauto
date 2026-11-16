@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Harmonium Master — ऑथेंटिक हारमोनियम एवं तानपुरा</title>
+    <meta name="description" content="Authentic Indian Harmonium Web App with real multi-reed acoustics, Octave Coupler, Sur Drones, Tanpura, Raag Trainer, MIDI support & AI Pitch Auto-play.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Background ambient particles -->
+    <div class="ambient-bg" id="ambientBg"></div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">🪗</div>
+                <div>
+                    <h1 class="title">AI Authentic Harmonium</h1>
+                    <p class="subtitle">bilkul othentic sound — गाओ, और हारमोनियम खुद बज उठेगा</p>
+                </div>
+            </div>
+            <div class="header-badges">
+                <div class="midi-badge" id="midiBadge" title="Web MIDI Status">
+                    <span class="midi-dot"></span>
+                    <span id="midiLabel">MIDI Ready</span>
+                </div>
+                <div class="mode-badge" id="modeBadge">
+                    <span class="mode-dot"></span>
+                    <span id="modeLabel">Manual Mode</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Controls Panel -->
+        <div class="controls-panel">
+            <div class="control-group">
+                <label class="control-label">Mode</label>
+                <div class="toggle-switch" id="modeToggle">
+                    <button class="toggle-btn" data-mode="manual">🎹 Manual</button>
+                    <button class="toggle-btn active" data-mode="auto">🎤 Auto Detect</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Start / Stop</label>
+                <button class="btn-primary" id="startBtn">
+                    <span class="btn-icon">▶</span>
+                    <span id="startBtnLabel">Start Listening</span>
+                </button>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Volume</label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="volumeSlider" min="0" max="100" value="80">
+                    <span class="slider-value" id="volumeValue">80%</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Sensitivity</label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="sensitivitySlider" min="1" max="100" value="50">
+                    <span class="slider-value" id="sensitivityValue">50%</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Base Scale (Sa)</label>
+                <select class="select-input" id="baseNoteSelect">
+                    <option value="130.81">Sa - C3 (Low)</option>
+                    <option value="146.83">Sa - D3</option>
+                    <option value="164.81">Sa - E3</option>
+                    <option value="174.61">Sa - F3</option>
+                    <option value="196.00">Sa - G3</option>
+                    <option value="220.00">Sa - A3</option>
+                    <option value="246.94">Sa - B3</option>
+                    <option value="261.63" selected>Sa - C4 (Medium)</option>
+                    <option value="293.66">Sa - D4</option>
+                    <option value="329.63">Sa - E4</option>
+                    <option value="349.23">Sa - F4</option>
+                    <option value="392.00">Sa - G4</option>
+                    <option value="523.25">Sa - C5 (High)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Scale Changer</label>
+                <div class="transpose-container">
+                    <button class="btn-step" id="transDown">-</button>
+                    <span class="transpose-val" id="transVal">0 (C)</span>
+                    <button class="btn-step" id="transUp">+</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Key Labels</label>
+                <select class="select-input" id="labelModeSelect">
+                    <option value="sargam" selected>Sargam (Sa, Re, Ga)</option>
+                    <option value="hindi">हिंदी (सा, रे, ग)</option>
+                    <option value="western">Western (C, D, E)</option>
+                    <option value="keys">Keyboard (A, S, D)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Raag Highlight</label>
+                <select class="select-input" id="raagSelect">
+                    <option value="none">All Notes (Normal)</option>
+                    <option value="yaman">Raag Yaman (कल्याण)</option>
+                    <option value="bhairav">Raag Bhairav (भैरव)</option>
+                    <option value="kafi">Raag Kafi (काफी)</option>
+                    <option value="bhupali">Raag Bhupali (भूपाली)</option>
+                    <option value="bilaval">Raag Bilaval (बिलावल)</option>
+                    <option value="malkauns">Raag Malkauns (मालकौंस)</option>
+                    <option value="darbari">Raag Darbari (दरबारी)</option>
+                    <option value="bageshri">Raag Bageshri (बागेश्री)</option>
+                    <option value="khamaj">Raag Khamaj (खमाज)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Indian Performance Bar (Tanpura & Recorder) -->
+        <div class="performance-bar">
+            <!-- Tanpura Section -->
+            <div class="tanpura-card">
+                <div class="card-header">
+                    <span class="card-icon">🪕</span>
+                    <span class="card-title">Tanpura Drone</span>
+                </div>
+                <div class="tanpura-controls">
+                    <button class="btn-tanpura" id="tanpuraBtn">▶ Start Tanpura</button>
+                    <select class="select-mini" id="tanpuraKeySelect">
+                        <option value="261.63">C</option>
+                        <option value="277.18">C#</option>
+                        <option value="293.66">D</option>
+                        <option value="311.13">D#</option>
+                        <option value="329.63">E</option>
+                        <option value="349.23">F</option>
+                        <option value="369.99">F#</option>
+                        <option value="392.00">G</option>
+                        <option value="415.30">G#</option>
+                        <option value="440.00">A</option>
+                        <option value="466.16">A#</option>
+                        <option value="493.88">B</option>
+                    </select>
+                    <select class="select-mini" id="tanpuraModeSelect">
+                        <option value="pa">Sa - Pa</option>
+                        <option value="ma">Sa - Ma</option>
+                        <option value="ni">Sa - Ni</option>
+                    </select>
+                    <input type="range" class="slider-mini" id="tanpuraVol" min="0" max="100" value="40" title="Tanpura Volume">
+                </div>
+            </div>
+
+            <!-- Audio Recorder Section -->
+            <div class="recorder-card">
+                <div class="card-header">
+                    <span class="card-icon">🎙️</span>
+                    <span class="card-title">Audio Recorder</span>
+                </div>
+                <div class="recorder-controls">
+                    <button class="btn-rec" id="recBtn">🔴 Record</button>
+                    <button class="btn-rec-stop" id="recStopBtn" disabled>⏹ Stop</button>
+                    <audio id="recPlayback" controls class="audio-playback" style="display:none;"></audio>
+                    <a id="recDownload" class="btn-download" style="display:none;" download="harmonium_recording.wav">💾 Download</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detected Note Display -->
+        <div class="detection-display" id="detectionDisplay">
+            <div class="detection-card">
+                <div class="detection-label">Detected Vocal Pitch</div>
+                <div class="detection-note" id="detectedNote">—</div>
+                <div class="detection-sargam" id="detectedSargam">Gaao...</div>
+                <div class="detection-freq" id="detectedFreq"></div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill"></div>
+                </div>
+                <div class="confidence-label">Realtime Pitch Accuracy</div>
+            </div>
+        </div>
+
+        <!-- Harmonium Body (Master Wooden Instrument) -->
+        <div class="harmonium-body">
+            <!-- Top Panel: Brass Nameplate & Mechanical Stops -->
+            <div class="harmonium-top">
+                <div class="harmonium-nameplate">
+                    <span class="nameplate-text">✦ bina master — authentic harmonium ✦</span>
+                </div>
+
+                <div class="control-stops-row">
+                    <!-- Multi-reed stops -->
+                    <div class="stop-group">
+                        <span class="group-label">REED STOPS</span>
+                        <div class="reed-stops">
+                            <div class="reed-stop" data-stop="bass" title="Mandra Reed (Deep woody warmth)">
+    <div class="stop-knob" id="stopBass"></div>
+    <span class="stop-label">Mandra</span>
+</div>
+                            <div class="reed-stop" data-stop="male" title="Male Reed (Middle core timbre)">
+                                <div class="stop-knob active" id="stopMale"></div>
+                                <span class="stop-label">Male</span>
+                            </div>
+                            <div class="reed-stop" data-stop="female" title="Female Reed (High reedy sparkle)">
+                                <div class="stop-knob active" id="stopFemale"></div>
+                                <span class="stop-label">Female</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coupler Switch -->
+                    <div class="stop-group">
+                        <span class="group-label">COUPLER</span>
+                        <div class="reed-stop" id="couplerToggle" title="Octave Coupler (Plays +1 Octave automatically)">
+                            <div class="stop-knob" id="couplerKnob"></div>
+                            <span class="stop-label">1-Oct Coupler</span>
+                        </div>
+                    </div>
+
+                    <!-- Drone / Sur Knobs -->
+                    <div class="stop-group">
+                        <span class="group-label">SUR / DRONE STOPS</span>
+                        <div class="reed-stops">
+                            <div class="reed-stop drone-stop" data-drone="Sa" data-freq="261.63" title="Sur Sa">
+                                <div class="stop-knob"></div>
+                                <span class="stop-label">Sur Sa</span>
+                            </div>
+                            <div class="reed-stop drone-stop" data-drone="Pa" data-freq="392.00" title="Sur Pa">
+                                <div class="stop-knob"></div>
+                                <span class="stop-label">Sur Pa</span>
+                            </div>
+                            <div class="reed-stop drone-stop" data-drone="Ma" data-freq="349.23" title="Sur Ma">
+                                <div class="stop-knob"></div>
+                                <span class="stop-label">Sur Ma</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bellows Air Meter -->
+                <div class="bellows-meter-bar">
+                    <span class="meter-label">BELLOWS AIR PRESSURE</span>
+                    <div class="meter-track">
+                        <div class="meter-fill" id="bellowsMeterFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main section with interactive bellows + keyboard -->
+            <div class="harmonium-middle">
+                <!-- Bellows -->
+                <div class="bellows-section" id="bellows" title="Click or Drag Bellows to Pump Air!">
+                    <div class="bellows-handle">PUMP</div>
+                    <div class="bellows-fold"></div>
+                    <div class="bellows-fold"></div>
+                    <div class="bellows-fold"></div>
+                    <div class="bellows-fold"></div>
+                    <div class="bellows-fold"></div>
+                    <div class="bellows-fold"></div>
+                    <div class="bellows-fold"></div>
+                    <div class="bellows-fold"></div>
+                </div>
+
+                <!-- Keyboard area -->
+                <div class="keyboard-wrapper">
+                    <div class="octave-labels" id="octaveLabels">
+                        <!-- Generated by JS -->
+                    </div>
+                    <div class="keyboard" id="keyboard">
+                        <!-- Keys generated dynamically by app.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom decorative panel -->
+            <div class="harmonium-bottom">
+                <div class="decorative-pattern">✦ 🪗 Master Brass Reed Harmonium 🪗 ✦</div>
+            </div>
+        </div>
+
+        <!-- Visualizer Section -->
+        <div class="visualizer-section">
+            <div class="visualizer-card">
+                <h3 class="visualizer-title">🎵 Live Audio Waveform</h3>
+                <canvas id="waveformCanvas" width="800" height="150"></canvas>
+            </div>
+            <div class="visualizer-card">
+                <h3 class="visualizer-title">📊 Acoustic Harmonic Spectrum</h3>
+                <canvas id="spectrumCanvas" width="800" height="150"></canvas>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Info -->
+        <div class="shortcuts-panel">
+            <h3>⌨️ Keyboard Shortcuts — एक लाइन में आसान बटन (Natural In-Line Keys)</h3>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        <kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd><kbd>G</kbd><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd>
+                    </div>
+                    <span>🎵 सा रे ग म प ध नि सां (Home Row — एक सीधी लाइन में पास-पास!)</span>
+                </div>
+                <div class="shortcut-item">
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd>
+                    </div>
+                    <span>🎵 रे♭ ग♭ म♯ ध♭ नि♭ (कोमल/तीव्र स्वर — ऊपर वाली लाइन में)</span>
+                </div>
+                <div class="shortcut-item">
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        <kbd>L</kbd><kbd>;</kbd><kbd>'</kbd> &nbsp;|&nbsp; <kbd>O</kbd><kbd>P</kbd>
+                    </div>
+                    <span>🎵 तार सप्तक रें गें में (High Octave Extension)</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Z</kbd> <kbd>X</kbd>
+                    <span>सप्तक बदलें: Z (मंद्र सप्तक ↓) | X (तार सप्तक ↑)</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>C</kbd>
+                    <span>सप्तक कपलर चालू/बंद (Octave Coupler)</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Space</kbd>
+                    <span>ऑडियो स्टार्ट / स्टॉप (Play / Pause Engine)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🎹 AI Authentic Harmonium Master — Bilkul Authentic Harmonium Sound & Realtime Vocal pitch follower | 🎶 गाओ और बजाओ 🎶</p>
+        </footer>
+    </div>
+
+    <!-- App Modules -->
+    <script src="audio/synth.js"></script>
+    <script src="ai/pitch.js"></script>
+    <script src="dsp/smoother.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
