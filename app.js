@@ -10,55 +10,125 @@ const BLACK_KEY_INDICES = [1, 3, 6, 8, 10]; // C#, D#, F#, G#, A#
 const WHITE_KEY_INDICES = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B
 
 // ============================================================
-// CONTINUOUS IN-LINE KEYBOARD MAPPING (Natural, contiguous & easy to play)
-// White Keys (Home Row in ONE straight line): A(Sa) S(Re) D(Ga) F(Ma) G(Pa) H(Dha) J(Ni) K(Taar Sa) L(Taar Re) ;(Taar Ga) '(Taar Ma)
-// Black Keys (Upper Row directly above):       W(Re♭) E(Ga♭) T(Ma♯) Y(Dha♭) U(Ni♭) O(Taar Re♭) P(Taar Ga♭)
-// Octave Shift: Z (down)  X (up)   Coupler: C or ` (backtick)   Start/Stop: Space
+// CONTINUOUS FULL 3-OCTAVE KEYBOARD MAPPING (37 Keys Total)
+// Middle Octave (Madhya): 100% UNCHANGED (Home row A-J + W,E,T,Y,U)
+// Lower Octave (Mandra): Bottom row Z-M + Numbers 1-5 (and Q)
+// High Octave (Taar): Upper Home row K-' + Numbers 6-= (and [ ] \ , . /)
+// Coupler Toggle: ` (Backtick)   Start/Stop: Space
 // ============================================================
 const KEY_MAP = {
-    // ---- Shuddha Swaras (White keys - Home Row) ----
-    'a': 0,   // Sa      (C)
-    's': 2,   // Re      (D)
-    'd': 4,   // Ga      (E)
-    'f': 5,   // Ma      (F)
-    'g': 7,   // Pa      (G)
-    'h': 9,   // Dha     (A)
-    'j': 11,  // Ni      (B)
-    'k': 12,  // Sa+1    (C, Taar Sa)
-    'l': 14,  // Re+1    (D, Taar Re)
-    ';': 16,  // Ga+1    (E, Taar Ga)
-    "'": 17,  // Ma+1    (F, Taar Ma)
+    // ---- MANDRA SAPTAK (Lower Octave 3) ----
+    // White keys (Bottom Row: Z X C V B N M)
+    'z': -12, // Mandra Sa   (C3)
+    'x': -10, // Mandra Re   (D3)
+    'c': -8,  // Mandra Ga   (E3)
+    'v': -7,  // Mandra Ma   (F3)
+    'b': -5,  // Mandra Pa   (G3)
+    'n': -3,  // Mandra Dha  (A3)
+    'm': -1,  // Mandra Ni   (B3)
 
-    // ---- Komal / Teevra Swaras (Black keys - Upper Row) ----
-    'w': 1,   // Re♭     (C#)
-    'e': 3,   // Ga♭     (D#)
-    't': 6,   // Ma♯     (F#)
-    'y': 8,   // Dha♭    (G#)
-    'u': 10,  // Ni♭     (A#)
-    'o': 13,  // Re♭+1   (C#+1)
-    'p': 15,  // Ga♭+1   (D#+1)
+    // Black keys (Number Row 1-5 & Q)
+    'q': -11, // Mandra Re♭  (C#3)
+    '1': -11, // Mandra Re♭  (C#3) (alias)
+    '2': -9,  // Mandra Ga♭  (D#3)
+    '3': -6,  // Mandra Ma♯  (F#3)
+    '4': -4,  // Mandra Dha♭ (G#3)
+    '5': -2,  // Mandra Ni♭  (A#3)
+
+    // ---- MADHYA SAPTAK (Middle Octave 4) — 100% UNCHANGED ----
+    // White keys (Home Row)
+    'a': 0,   // Sa      (C4)
+    's': 2,   // Re      (D4)
+    'd': 4,   // Ga      (E4)
+    'f': 5,   // Ma      (F4)
+    'g': 7,   // Pa      (G4)
+    'h': 9,   // Dha     (A4)
+    'j': 11,  // Ni      (B4)
+
+    // Black keys (Upper Row)
+    'w': 1,   // Re♭     (C#4)
+    'e': 3,   // Ga♭     (D#4)
+    't': 6,   // Ma♯     (F#4)
+    'y': 8,   // Dha♭    (G#4)
+    'u': 10,  // Ni♭     (A#4)
+
+    // ---- TAAR SAPTAK (High Octave 5 & C6) ----
+    // Existing High Notes — 100% UNCHANGED
+    'k': 12,  // Taar Sa  (C5)
+    'o': 13,  // Taar Re♭ (C#5)
+    'l': 14,  // Taar Re  (D5)
+    'p': 15,  // Taar Ga♭ (D#5)
+    ';': 16,  // Taar Ga  (E5)
+    "'": 17,  // Taar Ma  (F5)
+
+    // Upper High Notes (Number Row 6-= and Punctuation [ ] \ , . /)
+    '6': 18,  // Taar Ma♯ (F#5)
+    '[': 18,  // Taar Ma♯ (F#5) (alias)
+
+    '7': 19,  // Taar Pa  (G5)
+    ',': 19,  // Taar Pa  (G5) (alias)
+
+    '8': 20,  // Taar Dha♭(G#5)
+    ']': 20,  // Taar Dha♭(G#5) (alias)
+
+    '9': 21,  // Taar Dha (A5)
+    '.': 21,  // Taar Dha (A5) (alias)
+
+    '0': 22,  // Taar Ni♭ (A#5)
+
+    '-': 23,  // Taar Ni  (B5)
+    '/': 23,  // Taar Ni  (B5) (alias)
+
+    '=': 24,  // Ati-Taar Sa (C6)
+    '\\': 24, // Ati-Taar Sa (C6) (alias)
 };
 
-// Maps note-index-offset → computer keyboard shortcut label
+// Maps note-index-offset (-12 to 24) → computer keyboard shortcut label
 const KEY_LABELS_MAP = {
-    0:  'A',  // Sa
-    1:  'W',  // Re♭
-    2:  'S',  // Re
-    3:  'E',  // Ga♭
-    4:  'D',  // Ga
-    5:  'F',  // Ma
-    6:  'T',  // Ma♯
-    7:  'G',  // Pa
-    8:  'Y',  // Dha♭
-    9:  'H',  // Dha
-    10: 'U',  // Ni♭
-    11: 'J',  // Ni
-    12: 'K',  // Sa+1 (Taar Sa)
-    13: 'O',  // Re♭+1
-    14: 'L',  // Re+1
-    15: 'P',  // Ga♭+1
-    16: ';',  // Ga+1
-    17: "'",  // Ma+1
+    // Mandra Saptak (Octave 3)
+    [-12]: 'Z',  // C3 (Mandra Sa)
+    [-11]: '1',  // C#3 (Mandra Re♭)
+    [-10]: 'X',  // D3 (Mandra Re)
+    [-9]:  '2',  // D#3 (Mandra Ga♭)
+    [-8]:  'C',  // E3 (Mandra Ga)
+    [-7]:  'V',  // F3 (Mandra Ma)
+    [-6]:  '3',  // F#3 (Mandra Ma♯)
+    [-5]:  'B',  // G3 (Mandra Pa)
+    [-4]:  '4',  // G#3 (Mandra Dha♭)
+    [-3]:  'N',  // A3 (Mandra Dha)
+    [-2]:  '5',  // A#3 (Mandra Ni♭)
+    [-1]:  'M',  // B3 (Mandra Ni)
+
+    // Madhya Saptak (Octave 4) — 100% UNCHANGED!
+    0:  'A',  // C4 (Sa)
+    1:  'W',  // C#4 (Re♭)
+    2:  'S',  // D4 (Re)
+    3:  'E',  // D#4 (Ga♭)
+    4:  'D',  // E4 (Ga)
+    5:  'F',  // F4 (Ma)
+    6:  'T',  // F#4 (Ma♯)
+    7:  'G',  // G4 (Pa)
+    8:  'Y',  // G#4 (Dha♭)
+    9:  'H',  // A4 (Dha)
+    10: 'U',  // A#4 (Ni♭)
+    11: 'J',  // B4 (Ni)
+
+    // Taar Saptak (Octave 5 & C6) — 100% UNCHANGED for 12-17!
+    12: 'K',  // C5 (Taar Sa)
+    13: 'O',  // C#5 (Taar Re♭)
+    14: 'L',  // D5 (Taar Re)
+    15: 'P',  // D#5 (Taar Ga♭)
+    16: ';',  // E5 (Taar Ga)
+    17: "'",  // F5 (Taar Ma)
+
+    // Upper Taar Saptak
+    18: '6',  // F#5 (Taar Ma♯)
+    19: '7',  // G5 (Taar Pa)
+    20: '8',  // G#5 (Taar Dha♭)
+    21: '9',  // A5 (Taar Dha)
+    22: '0',  // A#5 (Taar Ni♭)
+    23: '-',  // B5 (Taar Ni)
+    24: '=',  // C6 (Ati-Taar Sa)
 };
 
 // Raag Note Indexes relative to Sa (0 = Sa, 1 = Re♭, 2 = Re, etc.)
@@ -436,8 +506,8 @@ class HarmoniumApp {
         const sargamName = SARGAM_NAMES[sargamIdx];
         const hindiName = SARGAM_HINDI[sargamIdx];
 
-        // Find computer keyboard key for this note in the active octave
-        const keyOffset = (oct - this.currentOctave) * 12 + noteIdx;
+        // Find computer keyboard key for this note across all 3 octaves
+        const keyOffset = (oct - 4) * 12 + noteIdx;
         const kbdLabel = KEY_LABELS_MAP[keyOffset];
 
         let kbdHtml = '';
@@ -783,22 +853,11 @@ class HarmoniumApp {
                 return;
             }
 
-            if (lowerKey === '`' || lowerKey === 'c') {
-                // C or Backtick = Coupler toggle (Ga is on D)
+            if (lowerKey === '`') {
+                // Backtick = Coupler toggle
                 await this._initAudio();
                 const isActive = this.dom.couplerKnob.classList.toggle('active');
                 if (this.synth) this.synth.setCoupler(isActive);
-                return;
-            }
-
-            if (lowerKey === 'z') {
-                this.currentOctave = Math.max(START_OCTAVE, this.currentOctave - 1);
-                this._updateKeyLabels();
-                return;
-            }
-            if (lowerKey === 'x') {
-                this.currentOctave = Math.min(START_OCTAVE + NUM_OCTAVES - 1, this.currentOctave + 1);
-                this._updateKeyLabels();
                 return;
             }
 
@@ -810,8 +869,8 @@ class HarmoniumApp {
                     await this.audioContext.resume();
                 }
                 const noteOffset = KEY_MAP[lowerKey];
-                const octave = this.currentOctave + Math.floor(noteOffset / 12);
-                const noteIdx = noteOffset % 12;
+                const octave = 4 + Math.floor(noteOffset / 12);
+                const noteIdx = ((noteOffset % 12) + 12) % 12;
                 const noteId = `${NOTE_NAMES[noteIdx]}${octave}`;
                 const keyEl = this.keyElements.get(noteId);
                 if (keyEl && !this.pressedKeys.has(lowerKey)) {
@@ -826,8 +885,8 @@ class HarmoniumApp {
             if (this.mode !== 'manual') return;
             if (KEY_MAP.hasOwnProperty(lowerKey)) {
                 const noteOffset = KEY_MAP[lowerKey];
-                const octave = this.currentOctave + Math.floor(noteOffset / 12);
-                const noteIdx = noteOffset % 12;
+                const octave = 4 + Math.floor(noteOffset / 12);
+                const noteIdx = ((noteOffset % 12) + 12) % 12;
                 const noteId = `${NOTE_NAMES[noteIdx]}${octave}`;
                 const keyEl = this.keyElements.get(noteId);
                 if (keyEl) {
